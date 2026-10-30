@@ -83,7 +83,7 @@ The constructor doesn't touch the network. The work starts when you call `connec
 | `playLED(LED, float freq, int duration)` | Plays an LED pattern, e.g. `BLINK_RED`, `FIRE`, or `SNAKE_GREEN_RED`. |
 | `pauseNavData()` / `resumeNavData()` / `pauseVideo()` / `resumeVideo()` | Pauses or resumes a decoding thread without disconnecting. |
 | `setExternalVideoDataDecoder(VideoDataDecoder)` | Replaces the built-in video decoder. Call it before `connect()`. |
-| `setExternalVideoDataDecoder(NavDataDecoder)` | Replaces the built-in navdata decoder. Despite the name, this overload takes a `NavDataDecoder`. Call it before `connect()`. |
+| `setExternalNavDataDecoder(NavDataDecoder)` | Replaces the built-in navdata decoder. Call it before `connect()`. (The old `setExternalVideoDataDecoder(NavDataDecoder)` overload still works but is deprecated.) |
 
 ---
 

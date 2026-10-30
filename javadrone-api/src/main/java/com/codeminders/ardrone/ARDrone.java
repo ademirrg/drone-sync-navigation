@@ -777,8 +777,17 @@ public class ARDrone
         this.ext_video_data_decoder = ext_video_data_decoder;
     }
     
-    public void setExternalVideoDataDecoder(NavDataDecoder ext_nav_data_decoder) {
+    public void setExternalNavDataDecoder(NavDataDecoder ext_nav_data_decoder) {
         this.ext_nav_data_decoder = ext_nav_data_decoder;
+    }
+
+    /**
+     * @deprecated Misnamed: this sets the navdata decoder, not the video decoder.
+     *             Use {@link #setExternalNavDataDecoder(NavDataDecoder)} instead.
+     */
+    @Deprecated
+    public void setExternalVideoDataDecoder(NavDataDecoder ext_nav_data_decoder) {
+        setExternalNavDataDecoder(ext_nav_data_decoder);
     }
     /**
      * Read Drone version.

@@ -1,5 +1,7 @@
 # javadrone — Java control for the Parrot AR.Drone
 
+[![Tests](https://github.com/ademirrg/drone-sync-navigation/actions/workflows/test.yml/badge.svg)](https://github.com/ademirrg/drone-sync-navigation/actions/workflows/test.yml)
+
 A pure-Java library (no native code) for flying a Parrot AR.Drone over Wi-Fi, plus
 utilities and demo apps built on top of it. It's based on the Codeminders
 [javadrone](http://code.google.com/p/javadrone) project, version 1.3, under the New BSD License.
@@ -66,6 +68,9 @@ drone or any hardware. They cover:
 - **`controltower`:** how button mappings are saved to and loaded from preference strings.
 
 Run the build with JDK 8. The modules target Java 1.6, which JDK 12 and later can't compile.
+
+GitHub Actions runs the same `mvn test` on JDK 8 for every push and pull request to
+`master` (see `.github/workflows/test.yml`).
 
 ## Connecting to the drone
 

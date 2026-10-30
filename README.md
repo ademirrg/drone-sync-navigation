@@ -50,6 +50,23 @@ mvn install
 cd controltower-android && mvn install
 ```
 
+## Running the tests
+
+```sh
+mvn test
+```
+
+The tests use JUnit 4, which is declared once in the root `pom.xml`. They don't need a
+drone or any hardware. They cover:
+
+- **`javadrone-api`:** the command queue (priority, replacement, size limit, sticky
+  repeats), AT command encoding, navdata packet parsing, controller-state decoding, and
+  the log chunk format.
+- **`javadrone-utils`:** the MJPEG/AVI writer.
+- **`controltower`:** how button mappings are saved to and loaded from preference strings.
+
+Run the build with JDK 8. The modules target Java 1.6, which JDK 12 and later can't compile.
+
 ## Connecting to the drone
 
 The drone creates its own Wi-Fi network named `ardrone_<number>`. Join that network

@@ -174,13 +174,18 @@ How the queue orders and repeats commands:
   commands), `HIGH_PRIORITY` (50, `LandCommand`), `VERY_HIGH_PRIORITY` (90,
   `KeepAliveCommand`), and `MAX_PRIORITY` (100, `QuitCommand`). Commands with equal
   priority go out in FIFO order.
-- **Replacement:** If an equal command is already queued, the new one replaces it instead
-  of adding a duplicate. Commands are equal if they produce the same AT string, or if
-  they share a non-null category. Take-off and land share the `takeoffland` category,
-  so a newer `land()` replaces a pending `takeOff()`.
+- **Replacement:** If an equal command is already anywhere in the queue, the new one
+  takes its place instead of adding a duplicate. Commands are equal if they produce the
+  same AT string, or if they share a non-null category. Take-off and land share the
+  `takeoffland` category, so a newer `land()` replaces a pending `takeOff()`. All
+  `PCMD` commands (`move()` and `hover()`) share the `pcmd` category, so only the latest
+  movement is ever queued.
+- **Size limit:** When the queue goes over its capacity, it drops the oldest non-sticky
+  command with the lowest priority.
 - **Sticky commands:** `TakeOffCommand` and `LandCommand` stay in the queue after they're
   sent and repeat every 100 ms. The repeats stop when the state machine sees the
-  transition finish and clears the queue.
+  transition finish and clears the queue. The sender waits between repeats without
+  holding the queue lock, so `add()` never blocks.
 - **Quit:** When the sender takes `QuitCommand`, its thread stops. An `IOException` while
   sending puts the drone in `ERROR`.
 

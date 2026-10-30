@@ -10,6 +10,7 @@ public abstract class DroneCommand
     protected static final long   DEFAULT_STICKY_RATE_MS = 100;
 
     protected static final String LAND_TAKEOFF_CATEGORY  = "takeoffland";
+    protected static final String PCMD_CATEGORY          = "pcmd";
 
     private int                   sticky_counter         = 0;
 

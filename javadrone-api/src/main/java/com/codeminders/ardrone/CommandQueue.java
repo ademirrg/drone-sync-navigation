@@ -1,9 +1,8 @@
 
 package com.codeminders.ardrone;
 
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.NoSuchElementException;
+import java.util.ListIterator;
 
 import java.util.logging.Logger;
 
@@ -11,7 +10,6 @@ public class CommandQueue
 {
     private LinkedList<DroneCommand> data;
     private int                      maxSize;
-    @SuppressWarnings("unused")
     private Logger                   log = Logger.getLogger(getClass().getName());
 
     public CommandQueue(int maxSize)
@@ -20,80 +18,105 @@ public class CommandQueue
         this.maxSize = maxSize;
     }
 
-    public synchronized DroneCommand take() throws InterruptedException
+    public DroneCommand take() throws InterruptedException
     {
         while(true)
         {
-            DroneCommand res = null;
-            try {
-                res = data.removeLast();
-            } catch (NoSuchElementException ex) {
-                res = null;
-            }
-            if(res != null)
+            DroneCommand res;
+            synchronized(this)
             {
-                // log.debug("[" + data.size() + "] Returning " + res);
-                if(res.isSticky())
+                while(data.isEmpty())
                 {
-                    int sc = res.incrementStickyCounter();
-                    data.addLast(res);
-                    if(sc > 1)
-                        Thread.sleep(res.getStickyRate());
+                    // log.debug("Waiting for data");
+                    wait();
                 }
-                return res;
-            } else
+                res = data.removeLast();
+                // log.debug("[" + data.size() + "] Returning " + res);
+                if(!res.isSticky())
+                    return res;
+
+                int sc = res.incrementStickyCounter();
+                data.addLast(res);
+                if(sc <= 1)
+                    return res;
+            }
+
+            // Sleep without holding the lock, so add() callers are not blocked
+            // while a sticky command is being repeated
+            Thread.sleep(res.getStickyRate());
+
+            synchronized(this)
             {
-                // log.debug("Waiting for data");
-                wait();
+                // It may have been cleared or replaced while we slept
+                if(data.contains(res))
+                    return res;
             }
         }
     }
 
     public synchronized void add(DroneCommand cmd)
     {
-        Iterator<DroneCommand> i = data.iterator();
-        int p = cmd.getPriority();
-        int pos = -1;
-
+        // Replace a pending command anywhere in the queue, keeping its position
+        ListIterator<DroneCommand> i = data.listIterator();
         while(i.hasNext())
         {
-            DroneCommand x = i.next();
-            pos++;
-            int xp = x.getPriority();
-            if(xp < p)
+            if(i.next().replaces(cmd))
             {
-                // Skipping
-                continue;
-            } else
-            {
-                // Found insertion point.
-                if(!x.replaces(cmd))
-                {
-                    // log.debug("[" + data.size() + "] Adding command " +
-                    // cmd);
-                    data.add(pos, cmd);
-                    notify();
-                } else
-                {
-                    // log.debug("Replacing duplicate element " + cmd);
-                    data.set(pos, cmd);
-                }
-                cmd = null; // inserted
-                break;
+                // log.debug("Replacing duplicate element " + cmd);
+                i.set(cmd);
+                return;
             }
         }
 
-        if(cmd != null)
+        // Otherwise insert before the first command with the same or higher priority
+        int p = cmd.getPriority();
+        i = data.listIterator();
+        while(i.hasNext())
         {
-            // log.debug("[" + data.size() + "] Adding command " + cmd);
-            data.addLast(cmd);
-            notify();
+            if(i.next().getPriority() >= p)
+            {
+                i.previous();
+                break;
+            }
         }
+        // log.debug("[" + data.size() + "] Adding command " + cmd);
+        i.add(cmd);
+        notify();
 
-        if(data.size() > maxSize)
+        while(data.size() > maxSize)
         {
-            // TODO: trim
+            if(!dropOne())
+                break;
         }
+    }
+
+    /**
+     * Drops the oldest non-sticky command with the lowest priority.
+     *
+     * @return false if there was nothing that could be dropped
+     */
+    private boolean dropOne()
+    {
+        int victim = -1;
+        int victimPriority = Integer.MAX_VALUE;
+        int pos = 0;
+        for(DroneCommand x : data)
+        {
+            // Newer commands sit before older ones of equal priority, so on a tie
+            // the later position is the older command
+            if(!x.isSticky() && x.getPriority() <= victimPriority)
+            {
+                victim = pos;
+                victimPriority = x.getPriority();
+            }
+            pos++;
+        }
+        if(victim < 0)
+            return false;
+
+        log.fine("Queue over " + maxSize + " commands, dropping " + data.get(victim));
+        data.remove(victim);
+        return true;
     }
 
     public synchronized int size()

@@ -21,6 +21,13 @@ public class PCMDCommand extends ATCommand
         return "PCMD";
     }
 
+    // Only the latest move/hover matters, so a new one replaces any pending one
+    @Override
+    public String getCategory()
+    {
+        return PCMD_CATEGORY;
+    }
+
     @Override
     protected Object[] getParameters()
     {

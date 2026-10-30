@@ -91,6 +91,19 @@ public class AssignableControlTest
         assertEquals(dir, restored.getRecFile());
     }
 
+    @Test
+    public void constructorsSetButton()
+    {
+        assertEquals(ControllerButton.START,
+                new AssignableControl(ControllerButton.START, Command.TAKEOFF, 0).getButton());
+        assertEquals(ControllerButton.L1,
+                new AssignableControl(ControllerButton.L1, Animation.WAVE, 0, 1).getButton());
+        assertEquals(ControllerButton.R1,
+                new AssignableControl(ControllerButton.R1, LED.FIRE, 0, 1f, 1).getButton());
+        assertEquals(ControllerButton.SQUARE,
+                new AssignableControl(ControllerButton.SQUARE, Command.TAKE_SNAPSHOT, 0, new File("pics")).getButton());
+    }
+
     @Test(expected = IllegalStateException.class)
     public void rejectsMalformedPrefString()
     {

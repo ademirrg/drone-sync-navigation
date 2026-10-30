@@ -123,7 +123,7 @@ public class MJPEGGenerator
 
     public static short swapShort(short v)
     {
-        return (short) ((v >>> 8) | (v << 8));
+        return (short) (((v >> 8) & 0xFF) | ((v & 0xFF) << 8));
     }
 
     public static byte[] intBytes(int i)

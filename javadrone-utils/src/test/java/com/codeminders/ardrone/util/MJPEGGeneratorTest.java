@@ -34,6 +34,16 @@ public class MJPEGGeneratorTest
     }
 
     @Test
+    public void swapsNegativeShorts()
+    {
+        assertEquals((short) 0x0180, MJPEGGenerator.swapShort((short) 0x8001));
+        assertEquals((short) 0xFF80, MJPEGGenerator.swapShort((short) 0x80FF));
+        assertEquals((short) 0xFFFF, MJPEGGenerator.swapShort((short) 0xFFFF));
+        for(int i = Short.MIN_VALUE; i <= Short.MAX_VALUE; i++)
+            assertEquals((short) i, MJPEGGenerator.swapShort(MJPEGGenerator.swapShort((short) i)));
+    }
+
+    @Test
     public void writesBigEndianBytes()
     {
         assertArrayEquals(new byte[] { 0x12, 0x34, 0x56, 0x78 }, MJPEGGenerator.intBytes(0x12345678));

@@ -92,6 +92,7 @@ public class AssignableControl {
     }
 
     public AssignableControl(ControllerButton button, LED led, int delay, float frequency, int duration) {
+        this.button = button;
         this.command = Command.PLAY_LED;
         this.delay = delay;
         this.led = led;
@@ -101,6 +102,7 @@ public class AssignableControl {
     }
 
     public AssignableControl(ControllerButton button, Animation anim, int delay, int duration) {
+        this.button = button;
         this.command = Command.PLAY_ANIMATION;
         this.delay = delay;
         this.anim = anim;
@@ -109,6 +111,7 @@ public class AssignableControl {
     }
 
     public AssignableControl(ControllerButton button, Command command, int delay, File file) {
+        this.button = button;
         this.command = command;
         this.delay = delay;
         this.recFile = file;
@@ -116,6 +119,7 @@ public class AssignableControl {
     }
 
     public AssignableControl(ControllerButton button, Command command, int delay) {
+        this.button = button;
         this.command = command;
         this.delay = delay;
         prefString = button.name() + "/" + command.name() + "/" + delay;

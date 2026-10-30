@@ -50,6 +50,7 @@ public class AssignableControl {
     private int video_index = 0;
 
     public AssignableControl(ControllerButton button, Command command, int delay) {
+        this.button = button;
         this.command = command;
         this.delay = delay;
     }
